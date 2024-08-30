@@ -1,0 +1,47 @@
+services:
+
+  rosws:
+    image: "jaxa-roscfe-dev"
+    environment:
+      - DISPLAY=novnc:0.0      
+    command: bash -c "sleep infinity"
+#    env_file:
+#      - env.sh
+    networks:
+      spaceip:
+        ipv4_address: 10.5.0.2          
+    build:
+      context: .
+      dockerfile: jaxa_roscfe.Dockerfile
+      target: jaxa-roscfe-dev
+      args:
+        - USER_UID=${UID:-1000}      
+    volumes:
+      - "./:/code/craftsman_ws"
+    working_dir: /code/craftsman_ws
+    
+  novnc:
+    image: theasp/novnc:latest
+    environment:
+      # Adjust to your screen size
+      - DISPLAY_WIDTH=1920
+      - DISPLAY_HEIGHT=1080
+      - RUN_XTERM=no
+    ports:
+      - "8080:8080"
+    networks:
+      spaceip:
+        ipv4_address: 10.5.0.5
+        
+
+# NOTE: networks apparently can't be imported from related file?
+networks:
+  spaceip:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 10.5.0.0/16
+         gateway: 10.5.0.1
+
+      
+      
